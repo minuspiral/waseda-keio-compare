@@ -6,5 +6,5 @@ export default defineConfig({
   // GitHub Pages: リポジトリ名に合わせて変更
   // 例: base: '/waseda-keio-compare/'
   // Vercel/Cloudflare: '/' のままでOK
-  base: '/',
+  base: '/waseda-keio-compare/',
 })
