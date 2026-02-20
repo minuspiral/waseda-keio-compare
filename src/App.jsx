@@ -213,7 +213,7 @@ export default function App(){
             <b style={{color:"#fff",fontSize:15}}>入学者平均 偏差値66の構造</b><br/><br/>
             <b style={{color:CL.e}}>入学者の約6割が東大不合格者</b>（平均66.9、東大ボーダー67.5直下）。偏差値70+の東大落ちの多くは浪人を選ぶため、実際に入学するのは65-68付近が中心。<br/><br/>
             <b style={{color:CL.d}}>東工大落ち(約17%)</b>と<b style={{color:"#8E44AD"}}>第一志望等(約20-25%)</b>が平均63-65で全体を引き下げ、結果として入学者平均は<b style={{color:CL.e}}>約66</b>に収束。<br/><br/>
-            国立大は併願不可のためボーダー付近に分布が集中し、上位・下位とも極端に薄い。河合塾全統模試の実データでは、<b style={{color:"#4466BB"}}>慶應理工入学者の分布は下位層が阪大基礎工(平均64.3)と重なり、上位層が東工大(平均66.8)の分布に重なる幅広い学力帯</b>となっている。合格者平均68.6から入学者平均65.9への低下は、この幅広さに起因する。詳細は「国公立との比較」タブを参照。</div>
+            国立大は併願不可のためボーダー付近に分布が集中し、上位・下位とも極端に薄い。河合塾全統模試の実データでは、<b style={{color:"#4466BB"}}>慶應理工入学者の分布は下位層が阪大理工系(平均63.9)と重なり、上位層が東工大(平均66.8)の分布に重なる幅広い学力帯</b>となっている。合格者平均68.6から入学者平均65.9への低下は、この幅広さに起因する。詳細は「国公立との比較」タブを参照。</div>
         </div>)}
 
         {tab==="compare"&&(<div>
@@ -267,8 +267,8 @@ export default function App(){
                 {name:"東工大合格者(実データ)",color:"#2ECC71",avg:"66.8",n:382,
                   data:[0,0,3,11,18,69,117,108,47,9,0],
                   mids:MR.map(m=>m)},
-                {name:"阪大基礎工合格者(実データ)",color:"#E74C3C",avg:"64.3",n:181,
-                  data:[0,0,0,8,37,63,50,23,0,0,0],
+                {name:"阪大理工系合格者(実データ)",color:"#E74C3C",avg:"63.9",n:720,
+                  data:[0,1,15,49,142,254,181,73,5,0,0],
                   mids:MR.map(m=>m)},
               ];
               const allMax=Math.max(...natData.flatMap(d=>d.data));
@@ -308,19 +308,19 @@ export default function App(){
                   <td style={{padding:"6px 4px",textAlign:"center",color:"#ccd"}}>382</td>
                   <td style={{padding:"6px 4px",textAlign:"center",color:"#889",fontSize:11}}>ボーダー集中、上下とも薄い</td></tr>
                 <tr style={{borderBottom:"1px solid rgba(255,255,255,0.03)"}}>
-                  <td style={{padding:"6px 4px",color:"#E74C3C",fontWeight:600,fontSize:12}}>阪大基礎工合格者</td>
-                  <td style={{padding:"6px 4px",textAlign:"center",color:CL.e,fontWeight:700}}>64.3</td>
+                  <td style={{padding:"6px 4px",color:"#E74C3C",fontWeight:600,fontSize:12}}>阪大理工系合格者</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:CL.e,fontWeight:700}}>63.9</td>
                   <td style={{padding:"6px 4px",textAlign:"center",color:"#ccd"}}>63.8-66.3</td>
-                  <td style={{padding:"6px 4px",textAlign:"center",color:"#ccd"}}>181</td>
-                  <td style={{padding:"6px 4px",textAlign:"center",color:"#889",fontSize:11}}>ボーダー集中、上下とも薄い</td></tr>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#ccd"}}>720</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#889",fontSize:11}}>3学部合算、62.5帯に集中</td></tr>
               </tbody></table>
           </div>
           <div style={{background:"rgba(46,204,113,0.04)",borderRadius:12,padding:"14px",border:"1px solid rgba(46,204,113,0.1)",fontSize:13,lineHeight:1.8,color:"#9aab99"}}>
             <b style={{color:"#fff",fontSize:15}}>分布から読み取れること</b><br/><br/>
-            <b style={{color:"#4466BB"}}>慶應理工入学者の分布は、下位層が阪大基礎工と重なり、上位層が東工大と重なる幅広い学力帯。</b>合格者平均は68.6だが、上位層（東大落ち70+）の多くが浪人を選ぶため入学者は65-68帯に集中し、平均は65.9に低下する。この入学者分布は東工大合格者(平均66.8)の分布と大きく重複する一方、下位層では阪大基礎工(平均64.3)の分布域にも及ぶ。<br/><br/>
-            <b style={{color:"#2ECC71"}}>東工大合格者</b>は65-70に密集し、72.5以上はごく少数。<b style={{color:"#E74C3C"}}>阪大基礎工合格者</b>は62.5-65に密集し、67.5以上はほぼ皆無。いずれも国立大の「併願不可→ボーダー集中」の特徴が顕著で、正規分布より裾が薄い尖った分布となる。<br/><br/>
+            <b style={{color:"#4466BB"}}>慶應理工入学者の分布は、下位層が阪大理工系と重なり、上位層が東工大と重なる幅広い学力帯。</b>合格者平均は68.6だが、上位層（東大落ち70+）の多くが浪人を選ぶため入学者は65-68帯に集中し、平均は65.9に低下する。この入学者分布は東工大合格者(平均66.8)の分布と大きく重複する一方、下位層では阪大理工系(平均63.9)の分布域にも及ぶ。<br/><br/>
+            <b style={{color:"#2ECC71"}}>東工大合格者</b>は65-70に密集し、72.5以上はごく少数。<b style={{color:"#E74C3C"}}>阪大理工系合格者</b>は60-65に密集（62.5帯がピーク）し、67.5以上はごく少数。3学部合算のため東工大より分布がやや広い。<br/><br/>
             <b style={{color:"#fff"}}>なぜ国立大の分布は尖っているのか?</b> 国立大は前期日程で1校しか受けられないため、「余裕で受かる上位層」も「記念受験の下位層」もおらず、ボーダー付近に人数が集中する。私立の早慶は併願先として幅広い層が受験・入学するため、分布が広くなる。<br/><br/>
-            データソース: 河合塾全統模試 偏差値帯別合格者数（東工大: 情報理工を除く5学科、阪大基礎工: 情報科学を除く3学科）
+            データソース: 河合塾全統模試 偏差値帯別合格者数（東工大: 情報理工を除く5学科、阪大: 理3学科+工4学科+基礎工3学科、情報系除く）
           </div>
         </div>)}
 
