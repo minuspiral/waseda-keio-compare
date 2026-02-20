@@ -2,7 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-from scipy.interpolate import PchipInterpolator
 from scipy.ndimage import gaussian_filter1d
 import os
 
@@ -62,19 +61,23 @@ kEnr = np.maximum(np.round(kAll * (1 - kTd) * KSC), 0)
 titec = np.array([0,0,3,11,18,69,117,108,47,9,0])
 osaka = np.array([0,1,15,49,142,254,181,73,5,0,0])  # 阪大理工系
 
-# --- Smoothed PCHIP interpolation ---
-def make_curve(data, mids, sigma=0.8):
+# --- Smoothed histogram (step function + Gaussian blur) ---
+def make_curve(data, mids, sigma_units=0.7):
     density = data / (np.sum(data) * 2.5)  # normalize to density
-    # Gaussian pre-smoothing to remove noise/gaps before interpolation
-    smooth = gaussian_filter1d(density, sigma=sigma)
-    # Add zero-padding at edges for smooth taper
-    pad = 5.0
-    xp = np.concatenate([[mids[0] - pad], mids, [mids[-1] + pad]])
-    yp = np.concatenate([[0], smooth, [0]])
-    pchip = PchipInterpolator(xp, yp)
-    x = np.linspace(52, 78, 500)
-    y = np.maximum(pchip(x), 0)
-    return x, y
+    # Build high-res step function from histogram bins
+    x_fine = np.linspace(mids[0] - 6, mids[-1] + 6, 3000)
+    y_fine = np.zeros_like(x_fine)
+    bw = 2.5  # bin width
+    for m, d in zip(mids, density):
+        mask = (x_fine >= m - bw/2) & (x_fine < m + bw/2)
+        y_fine[mask] = d
+    # Gaussian smoothing (sigma in data units -> pixel units)
+    dx = x_fine[1] - x_fine[0]
+    sigma_px = sigma_units / dx
+    y_smooth = gaussian_filter1d(y_fine, sigma=sigma_px)
+    # Clip to display range
+    mask = (x_fine >= 52) & (x_fine <= 78)
+    return x_fine[mask], y_smooth[mask]
 
 x_ke, y_ke = make_curve(kEnr, KM)
 x_kp, y_kp = make_curve(kAll * KSC, KM)
