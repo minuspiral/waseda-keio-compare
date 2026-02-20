@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-from scipy.stats import gaussian_kde
+from scipy.interpolate import PchipInterpolator
 import os
 
 # --- Japanese font setup ---
@@ -61,19 +61,22 @@ kEnr = np.maximum(np.round(kAll * (1 - kTd) * KSC), 0)
 titec = np.array([0,0,3,11,18,69,117,108,47,9,0])
 osaka = np.array([0,1,15,49,142,254,181,73,5,0,0])  # 阪大理工系
 
-# --- KDE ---
-def make_kde(data, mids, bw=1.0):
-    samples = np.repeat(mids, data.astype(int))
-    if len(samples) == 0:
-        return None, None
-    kde = gaussian_kde(samples, bw_method=bw / samples.std())
+# --- PCHIP interpolation (preserves shape & skewness) ---
+def make_curve(data, mids):
+    density = data / (np.sum(data) * 2.5)  # normalize to density
+    # Add zero-padding at edges for smooth taper
+    pad = 5.0
+    xp = np.concatenate([[mids[0] - pad], mids, [mids[-1] + pad]])
+    yp = np.concatenate([[0], density, [0]])
+    pchip = PchipInterpolator(xp, yp)
     x = np.linspace(52, 78, 500)
-    return x, kde(x)
+    y = np.maximum(pchip(x), 0)
+    return x, y
 
-x_ke, y_ke = make_kde(kEnr, KM, 1.0)
-x_kp, y_kp = make_kde(kAll * KSC, KM, 1.0)
-x_ti, y_ti = make_kde(titec, MR, 1.0)
-x_os, y_os = make_kde(osaka, MR, 1.0)
+x_ke, y_ke = make_curve(kEnr, KM)
+x_kp, y_kp = make_curve(kAll * KSC, KM)
+x_ti, y_ti = make_curve(titec, MR)
+x_os, y_os = make_curve(osaka, MR)
 
 # Compute averages for display
 keio_enr_avg = np.sum(kEnr * KM) / np.sum(kEnr)
