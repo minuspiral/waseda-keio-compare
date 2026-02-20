@@ -62,7 +62,7 @@ titec = np.array([0,0,3,11,18,69,117,108,47,9,0])
 osaka = np.array([0,1,15,49,142,254,181,73,5,0,0])  # 阪大理工系
 
 # --- KDE ---
-def make_kde(data, mids, bw=1.5):
+def make_kde(data, mids, bw=1.0):
     samples = np.repeat(mids, data.astype(int))
     if len(samples) == 0:
         return None, None
@@ -70,10 +70,10 @@ def make_kde(data, mids, bw=1.5):
     x = np.linspace(52, 78, 500)
     return x, kde(x)
 
-x_ke, y_ke = make_kde(kEnr, KM, 1.5)
-x_kp, y_kp = make_kde(kAll * KSC, KM, 1.5)
-x_ti, y_ti = make_kde(titec, MR, 1.5)
-x_os, y_os = make_kde(osaka, MR, 1.5)
+x_ke, y_ke = make_kde(kEnr, KM, 1.0)
+x_kp, y_kp = make_kde(kAll * KSC, KM, 1.0)
+x_ti, y_ti = make_kde(titec, MR, 1.0)
+x_os, y_os = make_kde(osaka, MR, 1.0)
 
 # Compute averages for display
 keio_enr_avg = np.sum(kEnr * KM) / np.sum(kEnr)
