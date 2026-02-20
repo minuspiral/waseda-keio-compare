@@ -3,7 +3,7 @@
 慶應義塾大学理工学部・早稲田大学理工3学部の**入学者偏差値**を、公式入試統計と河合塾全統模試データ、駿台ベネッセの併願成功率から推定します。あくまで推定値なので留意ください。なお、早稲田については合格者平均分布が公表されている8学科のみで推定を行っています。
 URLは[https://minuspiral.github.io/waseda-keio-compare/](https://minuspiral.github.io/waseda-keio-compare/)です
 
-![OGP](public/ogp.png)
+![OGP](public/ogp.png?v=2)
 
 ## 概要
 
