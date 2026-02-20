@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 from scipy.interpolate import PchipInterpolator
+from scipy.ndimage import gaussian_filter1d
 import os
 
 # --- Japanese font setup ---
@@ -61,13 +62,15 @@ kEnr = np.maximum(np.round(kAll * (1 - kTd) * KSC), 0)
 titec = np.array([0,0,3,11,18,69,117,108,47,9,0])
 osaka = np.array([0,1,15,49,142,254,181,73,5,0,0])  # 阪大理工系
 
-# --- PCHIP interpolation (preserves shape & skewness) ---
-def make_curve(data, mids):
+# --- Smoothed PCHIP interpolation ---
+def make_curve(data, mids, sigma=0.8):
     density = data / (np.sum(data) * 2.5)  # normalize to density
+    # Gaussian pre-smoothing to remove noise/gaps before interpolation
+    smooth = gaussian_filter1d(density, sigma=sigma)
     # Add zero-padding at edges for smooth taper
     pad = 5.0
     xp = np.concatenate([[mids[0] - pad], mids, [mids[-1] + pad]])
-    yp = np.concatenate([[0], density, [0]])
+    yp = np.concatenate([[0], smooth, [0]])
     pchip = PchipInterpolator(xp, yp)
     x = np.linspace(52, 78, 500)
     y = np.maximum(pchip(x), 0)
