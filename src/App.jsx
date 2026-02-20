@@ -179,7 +179,7 @@ export default function App(){
         </div>
 
         <nav aria-label="タブ切り替え" style={{display:"flex",flexWrap:"wrap",borderBottom:"1px solid rgba(255,255,255,0.05)",marginBottom:12}}>
-          {tb("composition","構成分析")}{tb("compare","学科別比較")}{tb("keio","慶應")}{tb("waseda","早稲田")}{tb("verify","検証")}
+          {tb("composition","構成分析")}{tb("national","国公立との比較")}{tb("compare","学科別比較")}{tb("keio","慶應")}{tb("waseda","早稲田")}{tb("verify","検証")}
         </nav>
 
         {tab==="composition"&&(<div>
@@ -213,7 +213,7 @@ export default function App(){
             <b style={{color:"#fff",fontSize:15}}>入学者平均 偏差値66の構造</b><br/><br/>
             <b style={{color:CL.e}}>入学者の約6割が東大不合格者</b>（平均66.9、東大ボーダー67.5直下）。偏差値70+の東大落ちの多くは浪人を選ぶため、実際に入学するのは65-68付近が中心。<br/><br/>
             <b style={{color:CL.d}}>東工大落ち(約17%)</b>と<b style={{color:"#8E44AD"}}>第一志望等(約20-25%)</b>が平均63-65で全体を引き下げ、結果として入学者平均は<b style={{color:CL.e}}>約66</b>に収束。<br/><br/>
-            偏差値66 ≒ <b style={{color:"#fff"}}>東京科学大(旧東工大)合格者の平均水準</b>。京大工(67-68)よりやや低く、阪大工(62-63)よりは明確に上。</div>
+            国立大は併願不可のためボーダー付近に分布が集中し、上位・下位とも極端に薄い。河合塾全統模試の実データでは、<b style={{color:"#4466BB"}}>慶應理工入学者の分布は下位層が阪大工(平均64.5)と重なり、上位層が東工大(平均67.0)の分布に重なる幅広い学力帯</b>となっている。合格者平均68.6から入学者平均65.9への低下は、この幅広さに起因する。詳細は「国公立との比較」タブを参照。</div>
         </div>)}
 
         {tab==="compare"&&(<div>
@@ -256,6 +256,73 @@ export default function App(){
         {tab==="waseda"&&(<div>{["基幹理工","創造理工","先進理工"].map(fac=>{const items=Object.entries(WG).filter(([_,g])=>g.fac===fac);return(<div key={fac} style={{marginBottom:10}}>
           <div style={{fontSize:15,fontWeight:600,color:CL.wsd,marginBottom:6,paddingLeft:4}}>{fac}学部</div>
           {items.map(([k,g])=>(<Card key={k} g={g} enr={wByG[k].e} mids={WM} label={g.l} color={g.c}/>))}</div>);})}</div>)}
+
+        {tab==="national"&&(<div>
+          <div style={{background:"rgba(255,255,255,0.025)",borderRadius:12,padding:"14px",border:"1px solid rgba(255,255,255,0.04)",marginBottom:12}}>
+            <div style={{fontSize:16,fontWeight:600,color:"#fff",marginBottom:6}}>慶應理工入学者 vs 国公立合格者の学力分布</div>
+            <p style={{fontSize:12,color:"#889",margin:"0 0 12px",lineHeight:1.6}}>河合塾全統模試の偏差値帯別合格者数（実データ）と、本サイトの慶應理工入学者推定を比較。国立大は併願不可のため分布がボーダー付近に集中し、上位・下位とも薄い。</p>
+            {(()=>{
+              const natData=[
+                {name:"慶應理工入学者(推定)",color:"#4466BB",avg:kAE.toFixed(1),n:kTE,data:kEnr,mids:KM},
+                {name:"東工大合格者(実データ)",color:"#2ECC71",avg:"67.0",n:381,
+                  data:[0,0,0,0,3,10,15,61,105,109,59],
+                  mids:MR.map(m=>m)},
+                {name:"阪大工合格者(実データ)",color:"#E74C3C",avg:"64.5",n:518,
+                  data:[0,0,1,2,24,85,184,152,63,6,1],
+                  mids:MR.map(m=>m)},
+              ];
+              const allMax=Math.max(...natData.flatMap(d=>d.data));
+              return(<div>
+                {natData.map((nd,idx)=>(<div key={idx} style={{marginBottom:12}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:4,flexWrap:"wrap",gap:6}}>
+                    <span style={{fontSize:14,fontWeight:600,color:nd.color}}>{nd.name}</span>
+                    <span style={{fontSize:12,color:"#889"}}>平均 <b style={{color:CL.e}}>{nd.avg}</b>　N={nd.n}</span>
+                  </div>
+                  <div role="img" aria-label={nd.name+"の分布"} style={{display:"flex",gap:2,alignItems:"flex-end",height:100,paddingBottom:20,position:"relative"}}>
+                    {nd.data.map((v,i)=>{const bh=allMax>0?(v/allMax)*80:0;
+                      return(<div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"flex-end",height:"100%",position:"relative"}}>
+                        {v>0&&<div style={{fontSize:8,color:"#99a",marginBottom:1}}>{Math.round(v)}</div>}
+                        <div style={{width:"85%",height:bh,background:nd.color+"88",borderRadius:"3px 3px 0 0"}}/>
+                        <div style={{position:"absolute",bottom:0,fontSize:8,color:"#667"}}>{BS[i]}</div></div>);})}
+                  </div>
+                </div>))}
+              </div>);
+            })()}
+          </div>
+          <div style={{background:"rgba(255,255,255,0.025)",borderRadius:12,padding:"14px",border:"1px solid rgba(255,255,255,0.04)",marginBottom:12}}>
+            <div style={{fontSize:16,fontWeight:600,color:"#fff",marginBottom:8}}>数値比較</div>
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}} aria-label="国公立比較">
+              <thead><tr style={{borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
+                {["","平均偏差値","最頻値帯","人数","分布の特徴"].map(h=>(<th key={h} style={{padding:"6px 4px",textAlign:h===""?"left":"center",color:"#889",fontWeight:500,fontSize:11}}>{h}</th>))}</tr></thead>
+              <tbody>
+                <tr style={{borderBottom:"1px solid rgba(255,255,255,0.03)"}}>
+                  <td style={{padding:"6px 4px",color:"#4466BB",fontWeight:600,fontSize:12}}>慶應理工入学者</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:CL.e,fontWeight:700}}>{kAE.toFixed(1)}</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#ccd"}}>63.8-66.3</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#ccd"}}>{kTE}</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#889",fontSize:11}}>右に厚い非対称（東大落ちが上位に集中）</td></tr>
+                <tr style={{borderBottom:"1px solid rgba(255,255,255,0.03)"}}>
+                  <td style={{padding:"6px 4px",color:"#2ECC71",fontWeight:600,fontSize:12}}>東工大合格者</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:CL.e,fontWeight:700}}>67.0</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#ccd"}}>66.3-68.8</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#ccd"}}>381</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#889",fontSize:11}}>ボーダー集中、上下とも薄い</td></tr>
+                <tr style={{borderBottom:"1px solid rgba(255,255,255,0.03)"}}>
+                  <td style={{padding:"6px 4px",color:"#E74C3C",fontWeight:600,fontSize:12}}>阪大工合格者</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:CL.e,fontWeight:700}}>64.5</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#ccd"}}>61.3-63.8</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#ccd"}}>518</td>
+                  <td style={{padding:"6px 4px",textAlign:"center",color:"#889",fontSize:11}}>ボーダー集中、上下とも薄い</td></tr>
+              </tbody></table>
+          </div>
+          <div style={{background:"rgba(46,204,113,0.04)",borderRadius:12,padding:"14px",border:"1px solid rgba(46,204,113,0.1)",fontSize:13,lineHeight:1.8,color:"#9aab99"}}>
+            <b style={{color:"#fff",fontSize:15}}>分布から読み取れること</b><br/><br/>
+            <b style={{color:"#4466BB"}}>慶應理工入学者の分布は、下位層が阪大工と重なり、上位層が東工大と重なる幅広い学力帯。</b>合格者平均は68.6だが、上位層（東大落ち70+）の多くが浪人を選ぶため入学者は65-68帯に集中し、平均は65.9に低下する。この入学者分布は東工大合格者(平均67.0)の分布と大きく重複する一方、下位層では阪大工(平均64.5)の分布域にも及ぶ。<br/><br/>
+            <b style={{color:"#2ECC71"}}>東工大合格者</b>は65-70に密集し、72.5以上はごく少数。<b style={{color:"#E74C3C"}}>阪大工合格者</b>は61.3-63.8に密集し、67.5以上はほぼ皆無。いずれも国立大の「併願不可→ボーダー集中」の特徴が顕著で、正規分布より裾が薄い尖った分布となる。<br/><br/>
+            <b style={{color:"#fff"}}>なぜ国立大の分布は尖っているのか?</b> 国立大は前期日程で1校しか受けられないため、「余裕で受かる上位層」も「記念受験の下位層」もおらず、ボーダー付近に人数が集中する。私立の早慶は併願先として幅広い層が受験・入学するため、分布が広くなる。<br/><br/>
+            データソース: 河合塾全統模試 偏差値帯別合格者数（情報系学科を除く工学系）
+          </div>
+        </div>)}
 
         {tab==="verify"&&(<div>
           <div style={{...scrollBox,marginBottom:10}}>
