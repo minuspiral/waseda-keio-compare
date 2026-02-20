@@ -11,14 +11,96 @@
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>早慶理工 入学者偏差値推定</title>
-    <meta name="description" content="慶應理工・早稲田理工の入学者偏差値を公式統計と河合塾データから推定。東大落ち・東工大落ちの構成分析も。" />
+    <title>早慶理工 入学者偏差値推定 | 合格者偏差値との乖離を可視化</title>
+    <meta name="description" content="早稲田・慶應理工学部の入学者偏差値を公式統計・河合塾・駿台ベネッセ併願データから推定。入学者平均は約66で東工大と同水準、阪大理系より上。東大落ち約6割の構成分析も掲載。" />
+    <meta name="keywords" content="早慶理工,入学者偏差値,早稲田理工,慶應理工,東工大,併願成功率,辞退率,合格者偏差値,偏差値推定" />
+    <link rel="canonical" href="https://minuspiral.github.io/waseda-keio-compare/" />
+
+    <!-- OGP -->
+    <meta property="og:title" content="早慶理工 入学者偏差値推定" />
+    <meta property="og:description" content="合格者偏差値ではなく入学者偏差値を統計的に推定。東大落ち・東工大落ちの構成比を分析し、入学者平均約66の内訳を可視化。" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://minuspiral.github.io/waseda-keio-compare/" />
+    <meta property="og:site_name" content="早慶理工 入学者偏差値推定" />
+    <meta property="og:locale" content="ja_JP" />
+    <!-- OGP画像を用意した場合はコメントアウトを外す -->
+    <!-- <meta property="og:image" content="https://minuspiral.github.io/waseda-keio-compare/ogp.png" /> -->
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="早慶理工 入学者偏差値推定" />
+    <meta name="twitter:description" content="入学者平均偏差値約66。東大落ち6割、東工大落ち17%の構成分析。" />
+
+    <!-- 構造化データ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "早慶理工 入学者偏差値推定",
+      "description": "早稲田・慶應理工学部の入学者偏差値を、公式入試統計・河合塾全統模試・駿台ベネッセ併願成功率データから統計的に推定するツール",
+      "author": {"@type": "Person", "name": "minuspiral"},
+      "url": "https://minuspiral.github.io/waseda-keio-compare/",
+      "inLanguage": "ja",
+      "keywords": ["早慶理工", "入学者偏差値", "併願成功率", "辞退率"]
+    }
+    </script>
+
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { background: #0b0b16; }
+      /* SEO用静的テキスト */
+      #seo-content { color: #ccc; padding: 20px; max-width: 900px; margin: 0 auto; font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif; line-height: 1.8; }
+      #seo-content h1 { font-size: 20px; color: #fff; margin-bottom: 12px; }
+      #seo-content h2 { font-size: 16px; color: #aabbdd; margin: 16px 0 8px; }
+      #seo-content p { font-size: 14px; margin-bottom: 8px; }
+      #seo-content .data-table { border-collapse: collapse; width: 100%; margin: 8px 0 16px; font-size: 13px; }
+      #seo-content .data-table th, #seo-content .data-table td { border: 1px solid #333; padding: 6px 8px; text-align: center; }
+      #seo-content .data-table th { background: #1a1a2e; color: #99aabb; }
     </style>
   </head>
   <body>
+    <!-- SEO用静的コンテンツ: クローラー向け＋JSロード前のフォールバック -->
+    <div id="seo-content">
+      <h1>早慶理工 入学者偏差値推定</h1>
+      <p>慶應義塾大学理工学部・早稲田大学理工3学部（基幹・創造・先進）の<strong>入学者偏差値</strong>を、公式入試統計（2025年度）、河合塾全統模試、駿台ベネッセ併願成功率（2023年度）のデータから統計的に推定するツールです。</p>
+
+      <h2>なぜ入学者偏差値が重要か</h2>
+      <p>河合塾や駿台が公表する偏差値は「合格者偏差値」であり、合格後に辞退する層を含んでいます。早慶理工の場合、合格者の大半が東大・東工大との併願者であり、国立合格者は辞退するため、実際に入学する学生の学力分布は合格者偏差値とは大きく乖離します。</p>
+
+      <h2>推定結果</h2>
+      <table class="data-table">
+        <thead>
+          <tr><th>大学</th><th>合格者平均</th><th>入学者平均</th><th>低下幅</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>慶應理工</td><td>68.5</td><td>66.1</td><td>-2.4</td></tr>
+          <tr><td>早稲田理工（8学科）</td><td>68.3</td><td>65.9</td><td>-2.4</td></tr>
+        </tbody>
+      </table>
+
+      <h2>入学者の構成</h2>
+      <p>入学者の約6割が東大不合格者（平均偏差値66.9）で構成されています。東工大落ち（約17%、平均63〜64）と第一志望等（約20〜25%、平均63〜65）が全体平均を引き下げ、入学者平均は約66に収束します。</p>
+      <p>偏差値66は東京科学大学（旧東工大）合格者の平均水準とほぼ同等であり、阪大理系（情報科学除く、推定62〜63）を明確に上回ります。</p>
+
+      <h2>併願成功率の検証（駿台ベネッセ 2023）</h2>
+      <table class="data-table">
+        <thead>
+          <tr><th>併願パターン</th><th>慶應理工</th><th>早稲田基幹理工</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>東大理I合格者</td><td>97.0%</td><td>97.1%</td></tr>
+          <tr><td>東大理I不合格者</td><td>61.5%</td><td>47.3%</td></tr>
+          <tr><td>京大工合格者</td><td>73.5%</td><td>63.4%</td></tr>
+          <tr><td>京大工不合格者</td><td>33.0%</td><td>15.4%</td></tr>
+          <tr><td>東工大合格者</td><td>61.8%</td><td>54.7%</td></tr>
+          <tr><td>東工大不合格者</td><td>17.1%</td><td>8.5%</td></tr>
+        </tbody>
+      </table>
+
+      <h2>データソース</h2>
+      <p>慶應義塾大学・早稲田大学 公式入試統計（2025年度）、河合塾全統模試偏差値分布、駿台ベネッセ併願成功率データ（2023年度）</p>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
