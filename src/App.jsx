@@ -295,7 +295,7 @@ export default function App(){
           <div style={{fontSize:12,color:"#556",lineHeight:1.7,textAlign:"center"}}>
             <div style={{marginBottom:4}}>
               データソース:
-              <a href="https://www.keio.ac.jp/ja/admissions/docs/2025tokei.pdf" target="_blank" rel="noopener noreferrer" style={{color:"#4A90D9",marginLeft:6}}>慶應 入試統計2025</a>
+              <a href="https://www.keio.ac.jp/ja/admissions/docs/toukei2025.pdf" target="_blank" rel="noopener noreferrer" style={{color:"#4A90D9",marginLeft:6}}>慶應 入試統計2025</a>
               <span style={{margin:"0 4px"}}>|</span>
               <a href="https://www.waseda.jp/inst/admission/undergraduate/result/" target="_blank" rel="noopener noreferrer" style={{color:"#4A90D9"}}>早稲田 入試結果</a>
               <span style={{margin:"0 4px"}}>|</span>
