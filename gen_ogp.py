@@ -79,8 +79,8 @@ def make_curve(data, mids, sigma_units=0.7):
     mask = (x_fine >= 52) & (x_fine <= 78)
     return x_fine[mask], y_smooth[mask]
 
-x_ke, y_ke = make_curve(kEnr, MR)
-x_kp, y_kp = make_curve(kAll * KSC, MR)
+x_ke, y_ke = make_curve(kEnr, KM, sigma_units=0.5)
+x_kp, y_kp = make_curve(kAll * KSC, KM, sigma_units=0.5)
 x_ti, y_ti = make_curve(titec, MR)
 x_os, y_os = make_curve(osaka, MR)
 
