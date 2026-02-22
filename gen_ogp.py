@@ -139,9 +139,9 @@ fig.text(0.48, 0.72, '65.7', fontsize=42, color='#ffffff', fontweight='bold', va
 fig.text(0.635, 0.735, '入学者平均', fontsize=13, color='#889999', va='top')
 
 # Key insight
-fig.text(0.06, 0.60, '入学者の約6割が東大不合格者', fontsize=16, color='#2ECC71',
+fig.text(0.06, 0.60, '入学者の多くが東大不合格者', fontsize=16, color='#2ECC71',
          fontweight='bold', va='top')
-fig.text(0.06, 0.545, '下位層は阪大理工系、上位層は東工大の分布に重なる幅広い学力帯',
+fig.text(0.06, 0.545, '上位層は東工大と重なり、下位層は阪大理工系に近接する幅広い学力帯',
          fontsize=13, color='#cccccc', va='top')
 
 # URL
