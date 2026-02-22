@@ -58,7 +58,82 @@ function analyzeComposition(perm,enr,mids,rbScale){
   return{groups,totalE,natPassTotal:npt};
 }
 
+// Gaussian smoothing (mirrors gen_ogp.py make_curve)
+function gaussSmooth(arr,sigma){
+  const n=arr.length,out=new Array(n).fill(0);
+  const r=Math.ceil(sigma*4),k=[];
+  let ks=0;
+  for(let i=-r;i<=r;i++){const v=Math.exp(-0.5*(i/sigma)**2);k.push(v);ks+=v;}
+  for(let i=0;i<k.length;i++)k[i]/=ks;
+  for(let i=0;i<n;i++){let s=0;for(let j=-r;j<=r;j++){const idx=Math.min(Math.max(i+j,0),n-1);s+=arr[idx]*k[j+r];}out[i]=s;}
+  return out;
+}
+function makeCurve(data,mids,sigmaUnits){
+  const total=data.reduce((a,b)=>a+b,0),bw=2.5;
+  const density=data.map(d=>d/(total*bw));
+  const N=500,xMin=52,xMax=78;
+  const x=Array.from({length:N},(_,i)=>xMin+(xMax-xMin)*i/(N-1));
+  const y=new Array(N).fill(0);
+  for(let j=0;j<mids.length;j++){
+    const lo=mids[j]-bw/2,hi=mids[j]+bw/2;
+    for(let i=0;i<N;i++)if(x[i]>=lo&&x[i]<hi)y[i]=density[j];
+  }
+  const dx=x[1]-x[0],sigmaPx=sigmaUnits/dx;
+  const ys=gaussSmooth(y,sigmaPx);
+  return{x,y:ys};
+}
+
 const CL={a:"#4A90D9",e:"#2ECC71",d:"#E74C3C",keio:"#4466AA",wsd:"#C4526E"};
+
+function DistChart({curves}){
+  const W=600,H=260,PL=40,PR=16,PT=16,PB=36;
+  const cw=W-PL-PR,ch=H-PT-PB;
+  const xMin=53,xMax=76;
+  const yMax=Math.max(...curves.flatMap(c=>c.y))*1.1;
+  const toSX=v=>PL+(v-xMin)/(xMax-xMin)*cw;
+  const toSY=v=>PT+ch-v/yMax*ch;
+  const pathD=c=>{
+    const pts=[];
+    for(let i=0;i<c.x.length;i++){
+      const sx=c.x[i],sy=c.y[i];
+      if(sx<xMin||sx>xMax)continue;
+      pts.push(`${toSX(sx).toFixed(1)},${toSY(sy).toFixed(1)}`);
+    }
+    return "M"+pts.join("L");
+  };
+  const fillD=c=>{
+    const pts=[];
+    for(let i=0;i<c.x.length;i++){
+      const sx=c.x[i],sy=c.y[i];
+      if(sx<xMin||sx>xMax)continue;
+      pts.push(`${toSX(sx).toFixed(1)},${toSY(sy).toFixed(1)}`);
+    }
+    if(!pts.length)return"";
+    return"M"+pts[0].split(",")[0]+","+toSY(0).toFixed(1)+"L"+pts.join("L")+"L"+pts[pts.length-1].split(",")[0]+","+toSY(0).toFixed(1)+"Z";
+  };
+  const ticks=[55,57.5,60,62.5,65,67.5,70,72.5,75];
+  return(
+    <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",maxWidth:700,display:"block",margin:"0 auto"}}>
+      {/* grid lines */}
+      {ticks.map(t=>(<line key={t} x1={toSX(t)} x2={toSX(t)} y1={PT} y2={PT+ch} stroke="#223" strokeWidth={0.5}/>))}
+      {/* fills */}
+      {curves.map((c,i)=>c.fill&&<path key={"f"+i} d={fillD(c)} fill={c.color} opacity={c.fillAlpha||0.1}/>)}
+      {/* lines */}
+      {curves.map((c,i)=><path key={"l"+i} d={pathD(c)} fill="none" stroke={c.color} strokeWidth={c.width||2} strokeDasharray={c.dash||"none"} opacity={c.alpha||1}/>)}
+      {/* x axis */}
+      <line x1={PL} x2={PL+cw} y1={PT+ch} y2={PT+ch} stroke="#334455" strokeWidth={1}/>
+      {ticks.map(t=>(<text key={t} x={toSX(t)} y={H-8} fill="#667788" fontSize={10} textAnchor="middle">{t}</text>))}
+      {/* legend */}
+      {curves.filter(c=>c.label).map((c,i)=>{
+        const lx=W-PR-8,ly=PT+14+i*18;
+        return(<g key={"lg"+i}>
+          <line x1={lx-30} x2={lx-8} y1={ly} y2={ly} stroke={c.color} strokeWidth={c.width||2} strokeDasharray={c.dash||"none"} opacity={c.alpha||1}/>
+          <text x={lx-34} y={ly+4} fill="#aabbcc" fontSize={9} textAnchor="end">{c.label}</text>
+        </g>);
+      })}
+    </svg>
+  );
+}
 
 function Bar({data,enrolled,mx,h=140,label}){
   return(<div role="img" aria-label={label||"偏差値分布グラフ"} style={{display:"flex",gap:2,alignItems:"flex-end",height:h,paddingBottom:20,position:"relative"}}>
@@ -159,7 +234,19 @@ export default function App(){
   const kComp=useMemo(()=>analyzeComposition(kPerm,kEnr,KM,0.80),[kPerm,kEnr]);
   const wComp=useMemo(()=>analyzeComposition(wPermBand,wEnrBand,WM,0.50),[wPermBand,wEnrBand]);
 
-  const tb=(id,lb)=>(<button key={id} onClick={()=>setTab(id)} aria-pressed={tab===id} style={{padding:"8px 6px",fontSize:13,fontWeight:tab===id?600:400,cursor:"pointer",background:tab===id?"rgba(255,255,255,0.07)":"transparent",border:"none",borderBottom:tab===id?"2px solid #4A90D9":"2px solid transparent",color:tab===id?"#fff":"#778",transition:"all 0.15s",flex:"1 1 0",minWidth:0,whiteSpace:"nowrap"}}>{lb}</button>);
+  const distCurves=useMemo(()=>{
+    const titec=[0,0,3,11,18,69,117,108,47,9,0];
+    const osaka=[0,1,15,49,142,254,181,73,5,0,0];
+    const kAccAll=kAll.map(n=>n*KSC);
+    return[
+      {...makeCurve(kAccAll,KM,0.5),color:"#4488DD",width:1.2,dash:"6 3",alpha:0.45,label:"慶應合格者",fill:false},
+      {...makeCurve(kEnr,KM,0.5),color:"#4488DD",width:2.5,label:"慶應入学者",fill:true,fillAlpha:0.12},
+      {...makeCurve(titec,MR,0.7),color:"#2ECC71",width:2,label:"東工大(情報除く)",fill:true,fillAlpha:0.08},
+      {...makeCurve(osaka,MR,0.7),color:"#E74C3C",width:2,label:"阪大理工系(情報除く)",fill:true,fillAlpha:0.08},
+    ];
+  },[kEnr,kAll]);
+
+  const tb=(id,lb)=>(<button key={id} onClick={()=>setTab(id)} aria-pressed={tab===id} style={{padding:"8px 10px",fontSize:13,fontWeight:tab===id?600:400,cursor:"pointer",background:tab===id?"rgba(255,255,255,0.07)":"transparent",border:"none",borderBottom:tab===id?"2px solid #4A90D9":"2px solid transparent",color:tab===id?"#fff":"#778",transition:"all 0.15s",whiteSpace:"nowrap",flexShrink:0}}>{lb}</button>);
 
   const scrollBox={background:"rgba(255,255,255,0.025)",borderRadius:12,padding:"12px",border:"1px solid rgba(255,255,255,0.04)",overflowX:"auto",WebkitOverflowScrolling:"touch"};
   const autoGrid={display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))"};
@@ -178,7 +265,7 @@ export default function App(){
           <SummaryCard u={{label:"早稲田大学 理工3学部",c:CL.wsd,aa:wAA,ae:wAE,te:wTE,perm:wPerm}}/>
         </div>
 
-        <nav aria-label="タブ切り替え" style={{display:"flex",flexWrap:"wrap",borderBottom:"1px solid rgba(255,255,255,0.05)",marginBottom:12}}>
+        <nav aria-label="タブ切り替え" style={{display:"flex",overflowX:"auto",WebkitOverflowScrolling:"touch",borderBottom:"1px solid rgba(255,255,255,0.05)",marginBottom:12,gap:2}}>
           {tb("composition","構成分析")}{tb("national","国公立との比較")}{tb("compare","学科別比較")}{tb("keio","慶應")}{tb("waseda","早稲田")}{tb("verify","検証")}
         </nav>
 
@@ -211,8 +298,9 @@ export default function App(){
             </table></div>
           <div style={{background:"rgba(74,144,217,0.04)",borderRadius:12,padding:"14px",border:"1px solid rgba(74,144,217,0.1)",fontSize:13,lineHeight:1.8,color:"#8899bb"}}>
             <b style={{color:"#fff",fontSize:15}}>入学者平均 偏差値66の構造</b><br/><br/>
-            <b style={{color:CL.e}}>入学者の約6割が東大不合格者</b>（平均66.9、東大ボーダー67.5直下）。偏差値70+の東大落ちの多くは浪人を選ぶため、実際に入学するのは65-68付近が中心。<br/><br/>
-            <b style={{color:CL.d}}>東工大落ち(約17%)</b>と<b style={{color:"#8E44AD"}}>第一志望等(約20-25%)</b>が平均63-65で全体を引き下げ、結果として入学者平均は<b style={{color:CL.e}}>約66</b>に収束。<br/><br/>
+            <b style={{color:CL.e}}>入学者の多くが東大不合格者</b>と推定される（東大ボーダー67.5直下の65-68帯が中心）。偏差値70+の東大落ちの多くは浪人を選ぶため、実際に入学するのは65-68付近に集中する。なお入学者の中には仮面浪人として翌年東大を再受験する層も一定数含まれるが、入試統計上は入学者として計上される。<br/><br/>
+            <b style={{color:CL.d}}>東工大落ち</b>と<b style={{color:"#8E44AD"}}>第一志望等</b>が平均63-65で全体を引き下げ、結果として入学者平均は<b style={{color:CL.e}}>約66</b>に収束。<br/><br/>
+            <span style={{fontSize:11,color:"#667"}}>※ 上記の構成比率はモデルの推定値です。各偏差値帯の国立大併願率は直接のデータがなく、推定に基づくため、実際の割合とは異なる可能性があります。</span><br/><br/>
             国立大は併願不可のためボーダー付近に分布が集中し、上位・下位とも極端に薄い。河合塾全統模試の実データでは、<b style={{color:"#4466BB"}}>慶應理工入学者の分布は下位層が阪大理工系(平均63.9)と重なり、上位層が東工大(平均66.8)の分布に重なる幅広い学力帯</b>となっている。合格者平均68.6から入学者平均65.9への低下は、この幅広さに起因する。詳細は「国公立との比較」タブを参照。</div>
         </div>)}
 
@@ -261,6 +349,8 @@ export default function App(){
           <div style={{background:"rgba(255,255,255,0.025)",borderRadius:12,padding:"14px",border:"1px solid rgba(255,255,255,0.04)",marginBottom:12}}>
             <div style={{fontSize:16,fontWeight:600,color:"#fff",marginBottom:6}}>慶應理工入学者 vs 国公立合格者の学力分布</div>
             <p style={{fontSize:12,color:"#889",margin:"0 0 12px",lineHeight:1.6}}>河合塾全統模試の偏差値帯別合格者数（実データ）と、本サイトの慶應理工入学者推定を比較。国立大は併願不可のため分布がボーダー付近に集中し、上位・下位とも薄い。</p>
+            <DistChart curves={distCurves}/>
+            <div style={{fontSize:11,color:"#556",textAlign:"center",margin:"4px 0 16px"}}>Gaussian平滑化による分布曲線（OGP画像と同一アルゴリズム）</div>
             {(()=>{
               const natData=[
                 {name:"慶應理工入学者(推定)",color:"#4466BB",avg:kAE.toFixed(1),n:kTE,data:kEnr,mids:KM},
@@ -318,7 +408,7 @@ export default function App(){
           <div style={{background:"rgba(46,204,113,0.04)",borderRadius:12,padding:"14px",border:"1px solid rgba(46,204,113,0.1)",fontSize:13,lineHeight:1.8,color:"#9aab99"}}>
             <b style={{color:"#fff",fontSize:15}}>分布から読み取れること</b><br/><br/>
             <b style={{color:"#4466BB"}}>慶應理工入学者の分布は、下位層が阪大理工系と重なり、上位層が東工大と重なる幅広い学力帯。</b>合格者平均は68.6だが、上位層（東大落ち70+）の多くが浪人を選ぶため入学者は65-68帯に集中し、平均は65.9に低下する。この入学者分布は東工大合格者(平均66.8)の分布と大きく重複する一方、下位層では阪大理工系(平均63.9)の分布域にも及ぶ。<br/><br/>
-            <b style={{color:"#2ECC71"}}>東工大合格者</b>は65-70に密集し、72.5以上はごく少数。<b style={{color:"#E74C3C"}}>阪大理工系合格者</b>は60-65に密集（62.5帯がピーク）し、67.5以上はごく少数。3学部合算のため東工大より分布がやや広い。<br/><br/>
+            <b style={{color:"#2ECC71"}}>東工大合格者</b>は65-70に密集し、72.5以上はごく少数。<b style={{color:"#E74C3C"}}>阪大理工系合格者</b>は60-65に密集（62.5帯がピーク）し、67.5以上は約1割にとどまる。3学部合算のため東工大より分布がやや広い。<br/><br/>
             <b style={{color:"#fff"}}>なぜ国立大の分布は尖っているのか?</b> 国立大は前期日程で1校しか受けられないため、「余裕で受かる上位層」も「記念受験の下位層」もおらず、ボーダー付近に人数が集中する。私立の早慶は併願先として幅広い層が受験・入学するため、分布が広くなる。<br/><br/>
             データソース: 河合塾全統模試 偏差値帯別合格者数（東工大: 情報理工を除く5学科、阪大: 理3学科+工4学科+基礎工3学科、情報系除く）
           </div>
@@ -356,7 +446,7 @@ export default function App(){
 
         <div style={{marginTop:14,background:"rgba(74,144,217,0.04)",borderRadius:12,padding:"14px",border:"1px solid rgba(74,144,217,0.1)",fontSize:13,lineHeight:1.7,color:"#8899bb"}}>
           <b style={{color:CL.a}}>結論:</b> 慶應理工の入学者平均は推定<b style={{color:CL.e}}>{kAE.toFixed(1)}</b>、早稲田理工は<b style={{color:CL.e}}>{wAE.toFixed(1)}</b>。
-          両校とも入学者の約6割が東大不合格者(平均66.9)で、東工大落ち(約17%)と第一志望層(20-25%)が平均を引き下げる構造。</div>
+          両校とも入学者の多くが東大不合格者と推定され、東工大落ちや第一志望層が平均を引き下げる構造。</div>
 
         <footer style={{marginTop:16,paddingTop:12,borderTop:"1px solid rgba(255,255,255,0.05)",paddingBottom:12}}>
           <div style={{fontSize:12,color:"#556",lineHeight:1.7,textAlign:"center"}}>
